@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaSense</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://api.fontsource.org/fonts/inter/latin-400.css');
+        @import url('https://api.fontsource.org/fonts/inter/latin-500.css');
+        @import url('https://api.fontsource.org/fonts/inter/latin-600.css');
+        @import url('https://api.fontsource.org/fonts/jetbrains-mono/latin-400.css');
+
+        * { -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .card {
+            background: #111111;
+            border: 1px solid #1a1a1a;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #2a2a2a;
+        }
+
+        .input-field {
+            background: #111111;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #fafafa;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .input-field::placeholder {
+            color: #4a4a4a;
+        }
+
+        .input-field:focus {
+            border-color: #333;
+        }
+
+        .btn-primary {
+            background: #fafafa;
+            color: #0a0a0a;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #111111;
+            color: #fafafa;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            border-color: #333;
+            background: #1a1a1a;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: inline-flex;
+        }
+
+        .btn-icon:hover {
+            background: #1a1a1a;
+            color: #fafafa;
+        }
+
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.25s;
+        }
+
+        .toggle.active {
+            background: #22c55e;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.25s;
+        }
+
+        .toggle.active::after {
+            transform: translateX(20px);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #fafafa;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4a4a4a;
+        }
+
+        .badge-dot.active {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: translateY(0);
+        }
+
+        .terminal {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .radio-option {
+            position: relative;
+        }
+
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .radio-label {
+            display: block;
+            padding: 16px;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-label:hover {
+            border-color: #2a2a2a;
+        }
+
+        .radio-option input:checked + .radio-label {
+            border-color: #fafafa;
+            background: #1a1a1a;
+        }
+
+        .color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #fafafa;
+            box-shadow: 0 0 0 2px #0a0a0a;
+        }
+
+        .divider {
+            height: 1px;
+            background: #1a1a1a;
+            margin: 20px 0;
+        }
+
+        .value-display {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <header class="border-b border-[#1a1a1a]">
+        <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
+                    <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <h1 class="text-lg font-semibold tracking-tight">AquaSense</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="badge bg-[#111] border border-[#1a1a1a]">
+                    <span class="badge-dot" id="bt-dot"></span>
+                    <span class="text-zinc-500" id="bt-status">Bluetooth</span>
+                </div>
+                <div class="badge bg-[#111] border border-[#1a1a1a]">
+                    <span class="badge-dot" id="fb-dot"></span>
+                    <span class="text-zinc-500" id="fb-status">Firebase</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-8 space-y-8">
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-1">Bluetooth</h3>
+                        <p id="device-name" class="text-xl font-semibold">Not connected</p>
+                    </div>
+                    <button id="btn-connect-bt" class="btn-primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Connect
+                    </button>
+                </div>
+                <div class="text-xs text-zinc-600 space-y-1">
+                    <p>Format: <span class="font-mono text-zinc-500">parameter,value</span></p>
+                    <p>Example: <span class="font-mono text-zinc-500">suhu,28.5</span> or <span class="font-mono text-zinc-500">ph:7.0</span></p>
+                </div>
+            </div>
+
+            <div class="card p-6">
+                <h3 class="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-4">Firebase</h3>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="password" id="fb-apiKey" placeholder="API Key" class="input-field">
+                        <input type="text" id="fb-dbUrl" placeholder="Database URL" class="input-field">
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="text" id="fb-path" value="aquasense/data" placeholder="Path" class="input-field flex-1">
+                        <button id="btn-connect-fb" class="btn-secondary whitespace-nowrap">Connect</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-medium text-zinc-500 uppercase tracking-wider">Sensors</h2>
+                <button id="btn-add-sensor" class="btn-icon" title="Add sensor">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </button>
+            </div>
+            <div id="sensor-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        </section>
+
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-medium text-zinc-500 uppercase tracking-wider">Actuators</h2>
+                <button id="btn-add-actuator" class="btn-icon" title="Add actuator">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </button>
+            </div>
+            <div id="actuator-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        </section>
+
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-medium text-zinc-500 uppercase tracking-wider">Terminal</h2>
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-zinc-700 pulse" id="terminal-indicator"></div>
+                    <button id="btn-clear-log" class="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Clear</button>
+                </div>
+            </div>
+            <div id="terminal-log" class="terminal"></div>
+        </section>
+
+    </main>
+
+    <div id="modal-sensor" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold">Add Sensor</h3>
+                <button class="btn-icon close-modal" data-modal="modal-sensor">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs text-zinc-600 mb-2 block">Parameter Name</label>
+                    <input type="text" id="sensor-name" placeholder="e.g. suhu, ph, tds" class="input-field">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-2 block">Display Label</label>
+                    <input type="text" id="sensor-label" placeholder="e.g. Temperature" class="input-field">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-2 block">Unit</label>
+                    <input type="text" id="sensor-unit" placeholder="e.g. °C, ppm" class="input-field">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-3 block">Type</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" name="sensor-type" value="analog" id="s-analog" checked>
+                            <label for="s-analog" class="radio-label">
+                                <div class="text-sm font-medium mb-0.5">Analog</div>
+                                <div class="text-xs text-zinc-600">Continuous</div>
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" name="sensor-type" value="digital" id="s-digital">
+                            <label for="s-digital" class="radio-label">
+                                <div class="text-sm font-medium mb-0.5">Digital</div>
+                                <div class="text-xs text-zinc-600">0 or 1</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-3 block">Color</label>
+                    <div class="flex gap-2">
+                        <button class="color-option bg-zinc-200 selected" data-color="white"></button>
+                        <button class="color-option bg-cyan-400" data-color="cyan"></button>
+                        <button class="color-option bg-green-400" data-color="green"></button>
+                        <button class="color-option bg-orange-400" data-color="orange"></button>
+                        <button class="color-option bg-purple-400" data-color="purple"></button>
+                    </div>
+                </div>
+                <button id="btn-confirm-sensor" class="btn-primary w-full">Add Sensor</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-actuator" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold">Add Actuator</h3>
+                <button class="btn-icon close-modal" data-modal="modal-actuator">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs text-zinc-600 mb-2 block">Parameter Name</label>
+                    <input type="text" id="actuator-name" placeholder="e.g. lampu, kipas" class="input-field">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-2 block">Display Label</label>
+                    <input type="text" id="actuator-label" placeholder="e.g. Lamp, Fan" class="input-field">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-3 block">Control Type</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" name="actuator-type" value="switch" id="a-switch" checked>
+                            <label for="a-switch" class="radio-label">
+                                <div class="text-sm font-medium mb-0.5">Switch</div>
+                                <div class="text-xs text-zinc-600">On / Off</div>
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" name="actuator-type" value="slider" id="a-slider">
+                            <label for="a-slider" class="radio-label">
+                                <div class="text-sm font-medium mb-0.5">Slider</div>
+                                <div class="text-xs text-zinc-600">0 - 100%</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-600 mb-3 block">Color</label>
+                    <div class="flex gap-2">
+                        <button class="act-color-option color-option bg-zinc-200 selected" data-color="white"></button>
+                        <button class="act-color-option color-option bg-cyan-400" data-color="cyan"></button>
+                        <button class="act-color-option color-option bg-green-400" data-color="green"></button>
+                        <button class="act-color-option color-option bg-orange-400" data-color="orange"></button>
+                        <button class="act-color-option color-option bg-red-400" data-color="red"></button>
+                    </div>
+                </div>
+                <button id="btn-confirm-actuator" class="btn-primary w-full">Add Actuator</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+        const UART_TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+        const UART_RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+
+        var btConnected = false;
+        var fbConnected = false;
+        var db = null;
+        var rxChar = null;
+        var buffer = '';
+        var sensors = [];
+        var actuators = [];
+        var sensorColor = 'white';
+        var actuatorColor = 'white';
+
+        var colors = {
+            white: { text: 'text-zinc-200', bg: 'bg-zinc-200', border: 'border-zinc-700' },
+            cyan: { text: 'text-cyan-400', bg: 'bg-cyan-400', border: 'border-cyan-900' },
+            green: { text: 'text-green-400', bg: 'bg-green-400', border: 'border-green-900' },
+            orange: { text: 'text-orange-400', bg: 'bg-orange-400', border: 'border-orange-900' },
+            purple: { text: 'text-purple-400', bg: 'bg-purple-400', border: 'border-purple-900' },
+            red: { text: 'text-red-400', bg: 'bg-red-400', border: 'border-red-900' }
+        };
+
+        var terminalEl = document.getElementById('terminal-log');
+        var sensorBox = document.getElementById('sensor-container');
+        var actuatorBox = document.getElementById('actuator-container');
+        var btnBt = document.getElementById('btn-connect-bt');
+        var btnFb = document.getElementById('btn-connect-fb');
+        var btnAddSensor = document.getElementById('btn-add-sensor');
+        var btnAddAct = document.getElementById('btn-add-actuator');
+
+        function logMessage(msg, type) {
+            if (!type) type = 'info';
+            var row = document.createElement('div');
+            row.className = 'flex gap-3';
+            
+            var timeSpan = document.createElement('span');
+            timeSpan.className = 'text-zinc-700 shrink-0';
+            var now = new Date();
+            timeSpan.textContent = now.toLocaleTimeString('en', { hour12: false });
+            
+            var msgSpan = document.createElement('span');
+            var colorMap = { tx: 'text-yellow-500', rx: 'text-cyan-500', error: 'text-red-500', ok: 'text-green-500', info: 'text-zinc-400' };
+            var iconMap = { tx: '\u2192', rx: '\u2190', error: '\u2715', ok: '\u2713', info: '\u2022' };
+            msgSpan.className = colorMap[type] || 'text-zinc-400';
+            msgSpan.textContent = (iconMap[type] || '\u2022') + ' ' + msg;
+            
+            row.appendChild(timeSpan);
+            row.appendChild(msgSpan);
+            terminalEl.appendChild(row);
+            terminalEl.scrollTop = terminalEl.scrollHeight;
+        }
+
+        function createSensorCard(s) {
+            if (!s) return;
+            var c = colors[s.color] || colors.white;
+            var cardId = 'sensor-' + s.id;
+            
+            var existing = document.getElementById(cardId);
+            if (existing) existing.remove();
+
+            var card = document.createElement('div');
+            card.id = cardId;
+            card.className = 'card p-5 animate-in relative group ' + c.border;
+            card.innerHTML = 
+                '<div class="flex items-center justify-between mb-3">' +
+                    '<span class="text-xs text-zinc-600 font-mono">' + escapeHtml(s.name) + '</span>' +
+                    '<span class="text-[10px] text-zinc-700 uppercase">' + escapeHtml(s.type) + '</span>' +
+                '</div>' +
+                '<div class="flex items-baseline gap-1">' +
+                    '<span class="text-3xl font-semibold value-display ' + c.text + '" id="' + cardId + '-val">0</span>' +
+                    '<span class="text-sm ' + c.text + '" id="' + cardId + '-unit">' + escapeHtml(s.unit) + '</span>' +
+                '</div>' +
+                '<p class="text-sm text-zinc-500 mt-1">' + escapeHtml(s.label) + '</p>' +
+                '<button class="btn-remove absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-700 hover:text-red-500 p-1" data-id="' + s.id + '">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>' +
+                '</button>';
+            sensorBox.appendChild(card);
+        }
+
+        function createActuatorCard(a) {
+            if (!a) return;
+            var c = colors[a.color] || colors.white;
+            var cardId = 'actuator-' + a.id;
+            
+            var existing = document.getElementById(cardId);
+            if (existing) existing.remove();
+
+            var card = document.createElement('div');
+            card.id = cardId;
+            card.className = 'card p-5 animate-in relative group ' + c.border;
+            
+            if (a.type === 'switch') {
+                card.innerHTML = 
+                    '<div class="flex items-center justify-between mb-4">' +
+                        '<span class="text-xs text-zinc-600 font-mono">' + escapeHtml(a.name) + '</span>' +
+                        '<span class="text-[10px] text-zinc-700 uppercase">Switch</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between">' +
+                        '<span class="text-lg font-medium text-zinc-500" id="' + cardId + '-status">Off</span>' +
+                        '<div class="toggle" id="' + cardId + '-toggle" data-id="' + a.id + '"></div>' +
+                    '</div>' +
+                    '<p class="text-sm text-zinc-500 mt-4">' + escapeHtml(a.label) + '</p>' +
+                    '<button class="btn-remove absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-700 hover:text-red-500 p-1" data-id="' + a.id + '">' +
+                        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>' +
+                    '</button>';
+            } else {
+                card.innerHTML = 
+                    '<div class="flex items-center justify-between mb-4">' +
+                        '<span class="text-xs text-zinc-600 font-mono">' + escapeHtml(a.name) + '</span>' +
+                        '<span class="text-[10px] text-zinc-700 uppercase">Slider</span>' +
+                    '</div>' +
+                    '<div class="flex items-baseline gap-1 mb-3">' +
+                        '<span class="text-3xl font-semibold value-display ' + c.text + '" id="' + cardId + '-val">0</span>' +
+                        '<span class="text-sm ' + c.text + '"></span>' +
+                    '</div>' +
+                    '<input type="range" min="0" max="100" value="0" class="w-full mb-3" id="' + cardId + '-slider" data-id="' + a.id + '">' +
+                    '<p class="text-sm text-zinc-500">' + escapeHtml(a.label) + '</p>' +
+                    '<button class="btn-remove absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-700 hover:text-red-500 p-1" data-id="' + a.id + '">' +
+                        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>' +
+                    '</button>';
+            }
+            actuatorBox.appendChild(card);
+        }
+
+        function updateSensorValue(id, val) {
+            if (!id) return;
+            var found = null;
+            for (var i = 0; i < sensors.length; i++) {
+                if (sensors[i].id === id) {
+                    found = sensors[i];
+                    break;
+                }
+            }
+            if (!found) return;
+            
+            // Misi Kelompok 6: Bug Kapitalisasi Fungsi - Mengubah d menjadi G pada getElementById
+            var valEl = document.getElementById('sensor-' + id + '-val');
+            if (valEl) {
+                valEl.textContent = val;
+                found.value = val;
+                logMessage('Updated sensor ' + found.name + ' = ' + val, 'ok');
+            }
+        }
+
+        function updateActuatorValue(id, val) {
+            if (!id) return;
+            var found = null;
+            for (var i = 0; i < actuators.length; i++) {
+                if (actuators[i].id === id) {
+                    found = actuators[i];
+                    break;
+                }
+            }
+            if (!found) return;
+            
+            if (found.type === 'switch') {
+                var statusEl = document.getElementById('actuator-' + id + '-status');
+                var toggleEl = document.getElementById('actuator-' + id + '-toggle');
+                if (statusEl) statusEl.textContent = val ? 'On' : 'Off';
+                if (toggleEl) {
+                    if (val) toggleEl.classList.add('active');
+                    else toggleEl.classList.remove('active');
+                }
+            } else {
+                var valEl = document.getElementById('actuator-' + id + '-val');
+                var sliderEl = document.getElementById('actuator-' + id + '-slider');
+                if (valEl) valEl.textContent = val;
+                if (sliderEl) sliderEl.value = val;
+            }
+            found.value = val;
+        }
+
+        function findSensorByName(name) {
+            if (!name) return null;
+            var searchKey = name.toLowerCase().trim();
+            for (var i = 0; i < sensors.length; i++) {
+                if (sensors[i].name.toLowerCase().trim() === searchKey) {
+                    return sensors[i];
+                }
+            }
+            return null;
+        }
+
+        function findActuatorByName(name) {
+            if (!name) return null;
+            var searchKey = name.toLowerCase().trim();
+            for (var i = 0; i < actuators.length; i++) {
+                if (actuators[i].name.toLowerCase().trim() === searchKey) {
+                    return actuators[i];
+                }
+            }
+            return null;
+        }
+
+        function sendBLE(param, val) {
+            if (!btConnected || !rxChar) {
+                logMessage('Not connected to BLE', 'error');
+                return;
+            }
+            var msg = param + ',' + val;
+            try {
+                rxChar.writeValue(new TextEncoder().encode(msg + '\n'))
+                    .then(function() { 
+                        logMessage(msg, 'tx'); 
+                        syncFirebase(param, val); 
+                    })
+                    .catch(function(e) { logMessage('Send error: ' + e.message, 'error'); });
+            } catch(e) {
+                logMessage('Send error: ' + e.message, 'error');
+            }
+        }
+
+        function syncFirebase(param, val) {
+            if (!fbConnected || !db) return;
+            var pathInput = document.getElementById('fb-path');
+            var path = pathInput ? pathInput.value.trim() : 'aquasense/data';
+            if (!path) path = 'aquasense/data';
+            try {
+                var numVal = parseFloat(val);
+                var payload = { value: numVal, timestamp: Date.now() };
+                update(ref(db, path + '/' + param), payload);
+                logMessage('Firebase: ' + param + ' = ' + val, 'ok');
+            } catch(e) { 
+                logMessage('Firebase sync error: ' + e.message, 'error'); 
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        function processData(text) {
+            if (!text || text.length === 0) return;
+            
+            logMessage('Raw: ' + text, 'rx');
+            
+            var cleaned = text.replace(/\r/g, '').trim();
+            if (!cleaned || cleaned.length === 0) return;
+            
+            var key = '';
+            var value = '';
+            var sepIndex = cleaned.indexOf(',');
+            
+            if (sepIndex > 0) {
+                key = cleaned.substring(0, sepIndex).trim();
+                value = cleaned.substring(sepIndex + 1).trim();
+            } else {
+                sepIndex = cleaned.indexOf(':');
+                if (sepIndex > 0) {
+                    key = cleaned.substring(0, sepIndex).trim();
+                    value = cleaned.substring(sepIndex + 1).trim();
+                } else {
+                    logMessage('Invalid format, need separator , or :', 'error');
+                    return;
+                }
+            }
+            
+            if (!key || !value) {
+                logMessage('Empty key or value', 'error');
+                return;
+            }
+            
+            var searchKey = key.toLowerCase();
+            logMessage('Parsed: key="' + searchKey + '" value="' + value + '"', 'info');
+            
+            var sensor = findSensorByName(searchKey);
+            if (sensor) {
+                logMessage('Matched sensor: ' + sensor.name, 'ok');
+                updateSensorValue(sensor.id, value);
+                syncFirebase(searchKey, value);
+                return;
+            }
+            
+            var actuator = findActuatorByName(searchKey);
+            if (actuator) {
+                logMessage('Matched actuator: ' + actuator.name, 'ok');
+                updateActuatorValue(actuator.id, parseInt(value));
+                return;
+            }
+            
+            logMessage('No match for key: ' + searchKey + ' (known: ' + getKnownKeys() + ')', 'error');
+        }
+
+        function getKnownKeys() {
+            var keys = [];
+            for (var i = 0; i < sensors.length; i++) {
+                keys.push(sensors[i].name);
+            }
+            for (var i = 0; i < actuators.length; i++) {
+                keys.push(actuators[i].name);
+            }
+            return keys.join(', ');
+        }
+
+        btnBt.addEventListener('click', async function() {
+            if (btConnected) {
+                logMessage('Already connected', 'error');
+                return;
+            }
+            if (!navigator.bluetooth) { 
+                logMessage('Web Bluetooth not supported in this browser', 'error'); 
+                return; 
+            }
+            
+            btnBt.disabled = true;
+            btnBt.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Connecting';
+            
+            try {
+                logMessage('Scanning for Micro:bit...', 'info');
+                var device = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: 'BBC micro:bit' }],
+                    optionalServices: [UART_SERVICE]
+                });
+                
+                logMessage('Connecting to ' + device.name + '...', 'info');
+                var server = await device.gatt.connect();
+                var service = await server.getPrimaryService(UART_SERVICE);
+                var txChar = await service.getCharacteristic(UART_TX);
+                rxChar = await service.getCharacteristic(UART_RX);
+                
+                await txChar.startNotifications();
+                txChar.addEventListener('characteristicvaluechanged', function(event) {
+                    var value = event.target.value;
+                    if (!value) return;
+                    
+                    var incoming = '';
+                    for (var i = 0; i < value.byteLength; i++) {
+                        incoming += String.fromCharCode(value.getUint8(i));
+                    }
+                    
+                    var combined = buffer + incoming;
+                    var lines = combined.split('\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (var j = 0; j < lines.length; j++) {
+                        var trimmed = lines[j].trim();
+                        if (trimmed) {
+                            processData(trimmed);
+                        }
+                    }
+                });
+
+                btConnected = true;
+                document.getElementById('device-name').textContent = device.name;
+                document.getElementById('bt-dot').classList.add('active');
+                document.getElementById('bt-status').textContent = 'Connected';
+                btnBt.innerHTML = 'Connected';
+                btnBt.className = 'btn-primary bg-zinc-800 text-zinc-400 cursor-default';
+                logMessage('Connected to ' + device.name, 'ok');
+
+                device.addEventListener('gattserverdisconnected', function() {
+                    btConnected = false;
+                    rxChar = null;
+                    document.getElementById('device-name').textContent = 'Not connected';
+                    document.getElementById('bt-dot').classList.remove('active');
+                    document.getElementById('bt-status').textContent = 'Bluetooth';
+                    btnBt.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Connect';
+                    btnBt.className = 'btn-primary';
+                    btnBt.disabled = false;
+                    logMessage('Micro:bit disconnected', 'error');
+                });
+            } catch(err) {
+                logMessage('Connection error: ' + err.message, 'error');
+                btnBt.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Connect';
+                btnBt.className = 'btn-primary';
+                btnBt.disabled = false;
+            }
+        });
+
+        btnFb.addEventListener('click', async function() {
+            var apiKeyInput = document.getElementById('fb-apiKey');
+            var dbUrlInput = document.getElementById('fb-dbUrl');
+            var apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+            var dbUrl = dbUrlInput ? dbUrlInput.value.trim() : '';
+            
+            if (!apiKey || !dbUrl) { 
+                logMessage('Fill in API Key and Database URL', 'error'); 
+                return; 
+            }
+            
+            try {
+                var apps = getApps();
+                if (apps && apps.length > 0) {
+                    await deleteApp(apps[0]);
+                }
+                
+                var projectId = 'default';
+                try {
+                    var urlParts = dbUrl.split('//');
+                    if (urlParts.length > 1) {
+                        projectId = urlParts[1].split('.')[0];
+                    }
+                } catch(e) {}
+                
+                var config = {
+                    apiKey: apiKey,
+                    databaseURL: dbUrl,
+                    projectId: projectId
+                };
+                
+                var app = initializeApp(config);
+                db = getDatabase(app);
+                fbConnected = true;
+                
+                document.getElementById('fb-dot').classList.add('active');
+                document.getElementById('fb-status').textContent = 'Connected';
+                btnFb.textContent = 'Connected';
+                btnFb.className = 'btn-primary bg-zinc-800 text-zinc-400 cursor-default';
+                logMessage('Firebase connected successfully', 'ok');
+
+                var pathInput = document.getElementById('fb-path');
+                var path = pathInput ? pathInput.value.trim() : 'aquasense/data';
+                if (!path) path = 'aquasense/data';
+                logMessage('Listening on: ' + path, 'info');
+                
+                onValue(ref(db, path), function(snapshot) {
+                    var data = snapshot.val();
+                    if (!data) {
+                        logMessage('No data at path: ' + path, 'info');
+                        return;
+                    }
+                    
+                    logMessage('FB update received', 'ok');
+                    
+                    var keys = Object.keys(data);
+                    for (var i = 0; i < keys.length; i++) {
+                        var key = keys[i];
+                        var entry = data[key];
+                        
+                        if (entry && entry.value !== undefined && entry.value !== null) {
+                            var sensor = findSensorByName(key);
+                            if (sensor) {
+                                logMessage('FB -> Sensor: ' + key + ' = ' + entry.value, 'ok');
+                                updateSensorValue(sensor.id, entry.value);
+                                continue;
+                            }
+                            
+                            var actuator = findActuatorByName(key);
+                            if (actuator) {
+                                logMessage('FB -> Actuator: ' + key + ' = ' + entry.value, 'ok');
+                                updateActuatorValue(actuator.id, parseFloat(entry.value));
+                            }
+                        }
+                    }
+                }, function(error) {
+                    logMessage('Firebase listener error: ' + error.message, 'error');
+                });
+            } catch(err) {
+                logMessage('Firebase error: ' + err.message, 'error');
+                fbConnected = false;
+                document.getElementById('fb-dot').classList.remove('active');
+                document.getElementById('fb-status').textContent = 'Firebase';
+                btnFb.textContent = 'Connect';
+                btnFb.className = 'btn-secondary';
+            }
+        });
+
+        btnAddSensor.addEventListener('click', function() { 
+            document.getElementById('modal-sensor').classList.add('visible'); 
+        });
+        btnAddAct.addEventListener('click', function() { 
+            document.getElementById('modal-actuator').classList.add('visible'); 
+        });
+        
+        document.querySelectorAll('.close-modal').forEach(function(btn) {
+            btn.addEventListener('click', function() { 
+                var modalId = btn.getAttribute('data-modal');
+                document.getElementById(modalId).classList.remove('visible'); 
+            });
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(function(m) {
+            m.addEventListener('click', function(e) { 
+                if (e.target === m) m.classList.remove('visible'); 
+            });
+        });
+
+        document.querySelectorAll('.color-option:not(.act-color-option)').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var parent = btn.parentElement;
+                var btns = parent.querySelectorAll('.color-option:not(.act-color-option)');
+                for (var i = 0; i < btns.length; i++) {
+                    btns[i].classList.remove('selected');
+                }
+                btn.classList.add('selected');
+                sensorColor = btn.getAttribute('data-color');
+            });
+        });
+
+        document.querySelectorAll('.act-color-option').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var parent = btn.parentElement;
+                var btns = parent.querySelectorAll('.act-color-option');
+                for (var i = 0; i < btns.length; i++) {
+                    btns[i].classList.remove('selected');
+                }
+                btn.classList.add('selected');
+                actuatorColor = btn.getAttribute('data-color');
+            });
+        });
+
+        document.getElementById('btn-confirm-sensor').addEventListener('click', function() {
+            var nameInput = document.getElementById('sensor-name');
+            var labelInput = document.getElementById('sensor-label');
+            var unitInput = document.getElementById('sensor-unit');
+            var name = nameInput ? nameInput.value.trim().toLowerCase() : '';
+            var label = labelInput ? labelInput.value.trim() : '';
+            var unit = unitInput ? unitInput.value.trim() : '';
+            var typeRadio = document.querySelector('input[name="sensor-type"]:checked');
+            var type = typeRadio ? typeRadio.value : 'analog';
+            
+            if (!name) { logMessage('Parameter name is required', 'error'); return; }
+            if (findSensorByName(name)) { 
+                logMessage('Sensor "' + name + '" already exists', 'error'); 
+                return; 
+            }
+            
+            var newSensor = { 
+                id: Date.now().toString(), 
+                name: name, 
+                label: label || name, 
+                unit: unit, 
+                type: type, 
+                color: sensorColor, 
+                value: 0 
+            };
+            sensors.push(newSensor);
+            createSensorCard(newSensor);
+            document.getElementById('modal-sensor').classList.remove('visible');
+            if (nameInput) nameInput.value = '';
+            if (labelInput) labelInput.value = '';
+            if (unitInput) unitInput.value = '';
+            logMessage('Sensor added: ' + name, 'ok');
+        });
+
+        document.getElementById('btn-confirm-actuator').addEventListener('click', function() {
+            var nameInput = document.getElementById('actuator-name');
+            var labelInput = document.getElementById('actuator-label');
+            var name = nameInput ? nameInput.value.trim().toLowerCase() : '';
+            var label = labelInput ? labelInput.value.trim() : '';
+            var typeRadio = document.querySelector('input[name="actuator-type"]:checked');
+            var type = typeRadio ? typeRadio.value : 'switch';
+            
+            if (!name) { logMessage('Parameter name is required', 'error'); return; }
+            if (findActuatorByName(name)) { 
+                logMessage('Actuator "' + name + '" already exists', 'error'); 
+                return; 
+            }
+            
+            var newActuator = { 
+                id: Date.now().toString(), 
+                name: name, 
+                label: label || name, 
+                type: type, 
+                color: actuatorColor, 
+                value: 0 
+            };
+            actuators.push(newActuator);
+            createActuatorCard(newActuator);
+            document.getElementById('modal-actuator').classList.remove('visible');
+            if (nameInput) nameInput.value = '';
+            if (labelInput) labelInput.value = '';
+            logMessage('Actuator added: ' + name, 'ok');
+        });
+
+        document.addEventListener('click', function(e) {
+            var toggle = e.target.closest('.toggle');
+            if (toggle) {
+                var id = toggle.getAttribute('data-id');
+                var act = findActuatorByName('');
+                for (var i = 0; i < actuators.length; i++) {
+                    if (actuators[i].id === id) {
+                        act = actuators[i];
+                        break;
+                    }
+                }
+                if (!act) return;
+                var newVal = act.value ? 0 : 1;
+                updateActuatorValue(id, newVal);
+                sendBLE(act.name, newVal);
+                return;
+            }
+            
+            var rmBtn = e.target.closest('.btn-remove');
+            if (rmBtn) {
+                var id = rmBtn.getAttribute('data-id');
+                sensors = sensors.filter(function(s) { return s.id !== id; });
+                actuators = actuators.filter(function(a) { return a.id !== id; });
+                var sensorCard = document.getElementById('sensor-' + id);
+                var actCard = document.getElementById('actuator-' + id);
+                if (sensorCard) sensorCard.remove();
+                if (actCard) actCard.remove();
+                logMessage('Removed', 'info');
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            var slider = e.target.closest('input[type="range"]');
+            if (slider) {
+                var id = slider.getAttribute('data-id');
+                var act = null;
+                for (var i = 0; i < actuators.length; i++) {
+                    if (actuators[i].id === id) {
+                        act = actuators[i];
+                        break;
+                    }
+                }
+                if (!act) return;
+                var val = parseInt(slider.value);
+                updateActuatorValue(id, val);
+                sendBLE(act.name, val);
+            }
+        });
+
+        document.getElementById('btn-clear-log').addEventListener('click', function() {
+            terminalEl.innerHTML = '';
+            logMessage('Terminal cleared', 'info');
+        });
+
+        var defaultSensors = [
+            { id: '1', name: 'suhu', label: 'Temperature', unit: '\u00B0C', type: 'analog', color: 'cyan', value: 0 },
+            { id: '2', name: 'ph', label: 'pH', unit: '', type: 'analog', color: 'green', value: 0 },
+            { id: '3', name: 'tds', label: 'TDS', unit: 'ppm', type: 'analog', color: 'orange', value: 0 }
+        ];
+        var defaultActuators = [
+            { id: '4', name: 'lampu', label: 'Lamp', type: 'switch', color: 'white', value: 0 },
+            { id: '5', name: 'kipas', label: 'Fan', type: 'slider', color: 'cyan', value: 0 }
+        ];
+        
+        sensors = defaultSensors;
+        actuators = defaultActuators;
+        for (var k = 0; k < sensors.length; k++) {
+            createSensorCard(sensors[k]);
+        }
+        for (var m = 0; m < actuators.length; m++) {
+            createActuatorCard(actuators[m]);
+        }
+        
+        logMessage('AquaSense initialized', 'ok');
+        logMessage('Known sensors: suhu, ph, tds', 'info');
+        logMessage('Known actuators: lampu, kipas', 'info');
+        logMessage('Waiting for Micro:bit...', 'info');
+    </script>
+</body>
+</html>
